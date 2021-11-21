@@ -4,6 +4,8 @@ import com.saimon.Stock.portfolio.api.consumerApi.dolarConsumerApi;
 import com.saimon.Stock.portfolio.api.consumerApi.stockConsumerApi;
 import com.saimon.Stock.portfolio.api.jsonObj.dolarPrice;
 import com.saimon.Stock.portfolio.api.jsonObj.stockPrice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -13,8 +15,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Optional;
 
 //https://query1.finance.yahoo.com/v8/finance/chart/AAPL?symbol=AAPL&&interval=1d
+
 @Service
 public class consumer {
+    private Logger Log = LoggerFactory.getLogger(consumer.class);
 
     public Optional<dolarPrice> conDolarPrice() {
         RestTemplate template = new RestTemplate();
@@ -30,7 +34,7 @@ public class consumer {
         return Optional.of(price);
     }
 
-    public Optional<stockPrice> conStockPrice(String stockSymbol) {
+    public stockPrice conStockPrice(String stockSymbol) {
         RestTemplate template = new RestTemplate();
         UriComponents uri = UriComponentsBuilder
                 .newInstance()
@@ -39,10 +43,9 @@ public class consumer {
                 .path(String.format("v8/finance/chart/%s", stockSymbol))
                 .queryParam(String.format("?symbol=%s&&interval=1d", stockSymbol))
                 .build();
-        ResponseEntity<stockConsumerApi> entity = template.getForEntity(uri.toUriString(),
-                stockConsumerApi.class);
-        var price = entity.getBody();
-        return Optional.of(price);
+        ResponseEntity<stockConsumerApi> entity = template.getForEntity(uri.toUriString(), stockConsumerApi.class);
+        return entity.getBody().getChartJson().getStockInfo();
+
     }
 
 }

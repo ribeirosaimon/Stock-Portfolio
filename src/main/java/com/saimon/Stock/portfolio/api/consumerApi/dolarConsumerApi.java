@@ -6,11 +6,11 @@ import com.saimon.Stock.portfolio.api.jsonObj.dolarPrice;
 public class dolarConsumerApi {
     private final dolarPrice dolar;
 
-    public dolarConsumerApi(@JsonProperty("USDBRL") dolarPrice dolar) {
-        this.dolar = dolar;
+    public dolarConsumerApi(@JsonProperty("USDBRL") dolarPrice dolarJson) {
+        this.dolar = dolarJson;
     }
 
-    public dolarPrice getDolar(){
+    public dolarPrice getDolar() {
         return this.dolar;
     }
 }

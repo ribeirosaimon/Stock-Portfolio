@@ -13,4 +13,15 @@ public class portfolioStock {
     private String stock;
     private Double value;
     private Long quantity;
+
+    public portfolioStock(){
+
+    }
+
+    public portfolioStock(String stock, Double value, Long quantity) {
+        this.stock = stock;
+        this.value = value;
+        this.quantity = quantity;
+    }
+
 }
