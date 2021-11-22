@@ -1,18 +1,17 @@
-package com.saimon.Stock.portfolio.api.consumerApi;
+package com.saimon.Stock.portfolio.api.stock;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.saimon.Stock.portfolio.api.jsonObj.stockPrice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-public class stockInfo {
-    private stockPrice stockPrice;
-    private Logger Log = LoggerFactory.getLogger(stockInfo.class);
+public class StockInfo {
+    private StockPrice stockPrice;
+    private Logger Log = LoggerFactory.getLogger(StockInfo.class);
 
-    public stockInfo(@JsonProperty("result") ArrayList<?> chart) {
+    public StockInfo(@JsonProperty("result") ArrayList<?> chart) {
         LinkedHashMap<?, ?> result = (LinkedHashMap<?, ?>) chart.get(0);
         LinkedHashMap<?, ?> stockValues = (LinkedHashMap<?, ?>) result.get("meta");
         LinkedHashMap<?, ?> indicators = (LinkedHashMap<?, ?>) result.get("indicators");
@@ -32,11 +31,11 @@ public class stockInfo {
         Double high = (Double) highList.get(0);
         Long volume = ((Number) volumeList.get(0)).longValue();
 
-        stockPrice stockPrice = new stockPrice(symbol, low, open, close, high, volume);
+        StockPrice stockPrice = new StockPrice(symbol, low, open, close, high, volume);
         this.stockPrice = stockPrice;
     }
 
-    public stockPrice getStockInfo() {
+    public StockPrice getStockInfo() {
         return this.stockPrice;
     }
 

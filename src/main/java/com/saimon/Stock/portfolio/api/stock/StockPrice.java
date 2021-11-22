@@ -1,8 +1,8 @@
-package com.saimon.Stock.portfolio.api.jsonObj;
+package com.saimon.Stock.portfolio.api.stock;
 
 import java.util.Objects;
 
-public class stockPrice {
+public class StockPrice {
     private final String symbol;
     private final double low;
     private final double open;
@@ -10,7 +10,7 @@ public class stockPrice {
     private final double high;
     private final long volume;
 
-    public stockPrice(String symbol, double low, double open, double close, double high, long volume) {
+    public StockPrice(String symbol, double low, double open, double close, double high, long volume) {
         this.symbol = symbol;
         this.low = low;
         this.open = open;
@@ -46,8 +46,8 @@ public class stockPrice {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof stockPrice)) return false;
-        stockPrice that = (stockPrice) o;
+        if (!(o instanceof StockPrice)) return false;
+        StockPrice that = (StockPrice) o;
         return Double.compare(that.getLow(), getLow()) == 0 && Double.compare(that.getOpen(), getOpen()) == 0 && Double.compare(that.getClose(), getClose()) == 0 && Double.compare(that.getHigh(), getHigh()) == 0 && getVolume() == that.getVolume() && Objects.equals(getSymbol(), that.getSymbol());
     }
 
