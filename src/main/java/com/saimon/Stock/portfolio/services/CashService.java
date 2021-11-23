@@ -13,14 +13,20 @@ public class CashService {
     @Autowired
     private CashEntity cashEntity;
 
-    public void deposit(Double value, Boolean national, Double dolar) {
+    public Cash deposit(Double value, Boolean national, Double dolar) {
         if (!national) {
             if (dolar != null) {
-                cashEntity.save(new Cash(value, false, dolar));
+                Cash newCash = new Cash(value, false, dolar);
+                cashEntity.save(newCash);
+                return newCash;
             }
             throw new NullPointerException("Dolar don't can null");
         } else if (value != null) {
-            cashEntity.save(new Cash(value, true, dolar));
+            Cash newCash = new Cash(value, true, dolar);
+            cashEntity.save(newCash);
+            return newCash;
+        } else {
+            throw new NullPointerException("Dolar don't can null");
         }
     }
 

@@ -39,27 +39,27 @@ public class CashController {
     private CashDTOConverter cashDTOConverter;
 
     @GetMapping(DEPOSIT_URI)
-    public ResponseEntity<CashDTO> deposit(@RequestParam("national") boolean national,
-                                           @RequestParam("value") double value,
-                                           @RequestParam(value = "dolar", required = false) double dolar)
+    public CashDTO deposit(@RequestParam("national") boolean national,
+                           @RequestParam("value") double value,
+                           @RequestParam(value = "dolar", required = false) double dolar)
             throws Exception {
         URI uri = URI.create(ServletUriComponentsBuilder
                 .fromCurrentContextPath()
                 .path(DEPOSIT_URI)
                 .toString());
-        Log.info(String.valueOf(uri));
-        return ResponseEntity
-                .created(uri)
-                .body(Optional
-                        CONVERTER CASH EM DTO
-                        .of(cashDTOConverter.converter())
-                        .orElseThrow(() -> new Exception("Error to deposit")));
+        Cash cashValue = cashService.deposit(value, national, dolar);
+        return cashDTOConverter.converter(cashValue);
+//        return ResponseEntity
+//                .created(uri)
+//                .body(Optional
+//                        .of()
+//                        .orElseThrow(() -> new Exception("Error to deposit")));
     }
 
     @GetMapping(WITHDRAW_URI)
     public ResponseEntity<CashDTO> withdraw(@RequestParam("national") boolean national,
                                             @RequestParam("value") double value,
-                                            @RequestParam("dolar") double dolar)
+                                            @RequestParam(value = "dolar", required = false) double dolar)
             throws Exception {
         URI uri = URI.create(ServletUriComponentsBuilder
                 .fromCurrentContextPath()
