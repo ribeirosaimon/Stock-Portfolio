@@ -7,26 +7,27 @@ import com.saimon.Stock.portfolio.Database.Entity.StockEntity;
 import com.saimon.Stock.portfolio.Database.Model.Cash;
 import com.saimon.Stock.portfolio.Database.Model.Stock;
 import com.saimon.Stock.portfolio.api.Consumer;
+import com.saimon.Stock.portfolio.services.BalanceService;
 import com.saimon.Stock.portfolio.services.CashService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Optional;
 
 @RestController
+@RequestMapping
 public class CashController {
     private Logger Log = LoggerFactory.getLogger(CashController.class);
     private final String DEPOSIT_URI = "/deposit";
-    private final String WITHDRAW_URI = "/withdraw/{national}/{value}";
-    private final String BALANCE_URI = "/balance/{national}";
+    private final String WITHDRAW_URI = "/withdraw";
+    private final String BALANCE_URI = "/balance";
     @Autowired
     private Consumer cons;
     @Autowired
@@ -37,45 +38,52 @@ public class CashController {
     private CashService cashService;
     @Autowired
     private CashDTOConverter cashDTOConverter;
+    @Autowired
+    private BalanceService balanceService;
 
     @GetMapping(DEPOSIT_URI)
-    public CashDTO deposit(@RequestParam("national") boolean national,
-                           @RequestParam("value") double value,
-                           @RequestParam(value = "dolar", required = false) double dolar)
+    public ResponseEntity<CashDTO> deposit(@RequestParam("national") Boolean national,
+                                           @RequestParam("value") Double value,
+                                           @RequestParam(value = "dolar", required = false) Double dolar)
             throws Exception {
         URI uri = URI.create(ServletUriComponentsBuilder
                 .fromCurrentContextPath()
                 .path(DEPOSIT_URI)
                 .toString());
         Cash cashValue = cashService.deposit(value, national, dolar);
-        return cashDTOConverter.converter(cashValue);
-//        return ResponseEntity
-//                .created(uri)
-//                .body(Optional
-//                        .of()
-//                        .orElseThrow(() -> new Exception("Error to deposit")));
+        return ResponseEntity
+                .created(uri)
+                .body(cashDTOConverter.converter(cashValue)
+                        .orElseThrow(() -> new Exception("Error to deposit")));
     }
 
     @GetMapping(WITHDRAW_URI)
-    public ResponseEntity<CashDTO> withdraw(@RequestParam("national") boolean national,
-                                            @RequestParam("value") double value,
-                                            @RequestParam(value = "dolar", required = false) double dolar)
+    public ResponseEntity<CashDTO> withdraw(@RequestParam("national") Boolean national,
+                                            @RequestParam("value") Double value,
+                                            @RequestParam(value = "dolar", required = false) Double dolar)
             throws Exception {
         URI uri = URI.create(ServletUriComponentsBuilder
                 .fromCurrentContextPath()
                 .path(WITHDRAW_URI)
                 .toString());
-        cashService.withdraw(value, national, dolar);
+        Cash cashValue = cashService.withdraw((value * -1), national, dolar);
         return ResponseEntity
                 .created(uri)
-                .body(Optional
-                        .of(new CashDTO(value, national))
+                .body(cashDTOConverter.converter(cashValue)
                         .orElseThrow(() -> new Exception("Error to withdraw")));
     }
 
     @GetMapping(BALANCE_URI)
-    public String balance(@PathVariable("national") boolean national) {
-        return String.valueOf(cashService.balance(national));
+    public String balance(@RequestParam(value = "national", required = false) Integer national) {
+        Boolean nationalBoolean = null;
+        if (national == 1) {
+            nationalBoolean = true;
+        } else if (national == 0) {
+            nationalBoolean = false;
+        } else if (national == 2) {
+            nationalBoolean = null;
+        }
+        return balanceService.balance(nationalBoolean).getBalance().toString();
     }
 
     @GetMapping("/testeinit")

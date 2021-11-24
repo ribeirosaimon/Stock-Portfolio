@@ -13,4 +13,15 @@ public class CashDTO {
         this.timestamp = new Date();
     }
 
+    public Double getValue() {
+        return value;
+    }
+
+    public Boolean getNational() {
+        return national;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
 }
