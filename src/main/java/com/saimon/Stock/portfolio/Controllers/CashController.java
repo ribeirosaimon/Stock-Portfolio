@@ -8,6 +8,7 @@ import com.saimon.Stock.portfolio.Database.Model.Cash;
 import com.saimon.Stock.portfolio.Database.Model.Stock;
 import com.saimon.Stock.portfolio.Services.BalanceService;
 import com.saimon.Stock.portfolio.Services.CashService;
+import com.saimon.Stock.portfolio.Services.StockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,8 @@ public class CashController {
     private CashService cashService;
     @Autowired
     private BalanceService balanceService;
+    @Autowired
+    private StockService stockService;
 
     @GetMapping(DEPOSIT_URI)
     public ResponseEntity<CashDTO> deposit(@RequestParam("national") Boolean national,
@@ -95,20 +98,20 @@ public class CashController {
         var acao7 = cons.conStockPrice("mchi");
 
         Stock stock1 = new Stock(acao1.getSymbol(), 17.89, 251D, true);
-        Stock stock2 = new Stock(acao2.getSymbol(), 5.32, 1000D, true);
-        Stock stock3 = new Stock(acao3.getSymbol(), 4.74, 1600D, true);
-        Stock stock4 = new Stock(acao4.getSymbol(), 29.27, 100D, true);
-        Stock stock5 = new Stock(acao5.getSymbol(), 1628.42, 3.55932, false);
-        Stock stock6 = new Stock(acao6.getSymbol(), 71.17, 18D, false);
-        Stock stock7 = new Stock(acao7.getSymbol(), 66.92, 29D, false);
+//        Stock stock2 = new Stock(acao2.getSymbol(), 5.32, 1000D, true);
+//        Stock stock3 = new Stock(acao3.getSymbol(), 4.74, 1600D, true);
+//        Stock stock4 = new Stock(acao4.getSymbol(), 29.27, 100D, true);
+//        Stock stock5 = new Stock(acao5.getSymbol(), 1628.42, 3.55932, false);
+//        Stock stock6 = new Stock(acao6.getSymbol(), 71.17, 18D, false);
+//        Stock stock7 = new Stock(acao7.getSymbol(), 66.92, 29D, false);
 
-        stockEntity.save(stock1);
-        stockEntity.save(stock2);
-        stockEntity.save(stock3);
-        stockEntity.save(stock4);
-        stockEntity.save(stock5);
-        stockEntity.save(stock6);
-        stockEntity.save(stock7);
+        stockService.buyStock(stock1);
+//        stockEntity.save(stock2);
+//        stockEntity.save(stock3);
+//        stockEntity.save(stock4);
+//        stockEntity.save(stock5);
+//        stockEntity.save(stock6);
+//        stockEntity.save(stock7);
 
         return "Stock Ok";
     }
