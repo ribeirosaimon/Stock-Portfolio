@@ -1,4 +1,4 @@
-package com.saimon.Stock.portfolio.api.dolar;
+package com.saimon.Stock.portfolio.Api.dolar;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

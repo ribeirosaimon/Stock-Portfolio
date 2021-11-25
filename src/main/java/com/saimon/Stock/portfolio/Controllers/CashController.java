@@ -1,14 +1,13 @@
-package com.saimon.Stock.portfolio.controllers;
+package com.saimon.Stock.portfolio.Controllers;
 
+import com.saimon.Stock.portfolio.Api.Consumer;
 import com.saimon.Stock.portfolio.DTO.CashDTO;
-import com.saimon.Stock.portfolio.DTO.CashDTOConverter;
 import com.saimon.Stock.portfolio.Database.Entity.CashEntity;
 import com.saimon.Stock.portfolio.Database.Entity.StockEntity;
 import com.saimon.Stock.portfolio.Database.Model.Cash;
 import com.saimon.Stock.portfolio.Database.Model.Stock;
-import com.saimon.Stock.portfolio.api.Consumer;
-import com.saimon.Stock.portfolio.services.BalanceService;
-import com.saimon.Stock.portfolio.services.CashService;
+import com.saimon.Stock.portfolio.Services.BalanceService;
+import com.saimon.Stock.portfolio.Services.CashService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Optional;
 
 @RestController
 @RequestMapping
@@ -37,8 +37,6 @@ public class CashController {
     @Autowired
     private CashService cashService;
     @Autowired
-    private CashDTOConverter cashDTOConverter;
-    @Autowired
     private BalanceService balanceService;
 
     @GetMapping(DEPOSIT_URI)
@@ -53,7 +51,7 @@ public class CashController {
         Cash cashValue = cashService.deposit(value, national, dolar);
         return ResponseEntity
                 .created(uri)
-                .body(cashDTOConverter.converter(cashValue)
+                .body(Optional.of(new CashDTO(cashValue.getCashValue(), cashValue.getNational()))
                         .orElseThrow(() -> new Exception("Error to deposit")));
     }
 
@@ -69,7 +67,7 @@ public class CashController {
         Cash cashValue = cashService.withdraw((value * -1), national, dolar);
         return ResponseEntity
                 .created(uri)
-                .body(cashDTOConverter.converter(cashValue)
+                .body(Optional.of(new CashDTO(cashValue.getCashValue(), cashValue.getNational()))
                         .orElseThrow(() -> new Exception("Error to withdraw")));
     }
 
@@ -96,13 +94,13 @@ public class CashController {
         var acao6 = cons.conStockPrice("mu");
         var acao7 = cons.conStockPrice("mchi");
 
-        Stock stock1 = new Stock(acao1.getSymbol(), 17.89, 251D);
-        Stock stock2 = new Stock(acao2.getSymbol(), 5.32, 1000D);
-        Stock stock3 = new Stock(acao3.getSymbol(), 4.74, 1600D);
-        Stock stock4 = new Stock(acao4.getSymbol(), 29.27, 100D);
-        Stock stock5 = new Stock(acao5.getSymbol(), 1628.42, 3.55932);
-        Stock stock6 = new Stock(acao6.getSymbol(), 71.17, 18D);
-        Stock stock7 = new Stock(acao7.getSymbol(), 66.92, 29D);
+        Stock stock1 = new Stock(acao1.getSymbol(), 17.89, 251D, true);
+        Stock stock2 = new Stock(acao2.getSymbol(), 5.32, 1000D, true);
+        Stock stock3 = new Stock(acao3.getSymbol(), 4.74, 1600D, true);
+        Stock stock4 = new Stock(acao4.getSymbol(), 29.27, 100D, true);
+        Stock stock5 = new Stock(acao5.getSymbol(), 1628.42, 3.55932, false);
+        Stock stock6 = new Stock(acao6.getSymbol(), 71.17, 18D, false);
+        Stock stock7 = new Stock(acao7.getSymbol(), 66.92, 29D, false);
 
         stockEntity.save(stock1);
         stockEntity.save(stock2);

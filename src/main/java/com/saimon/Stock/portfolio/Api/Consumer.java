@@ -1,8 +1,8 @@
-package com.saimon.Stock.portfolio.api;
+package com.saimon.Stock.portfolio.Api;
 
-import com.saimon.Stock.portfolio.api.dolar.Response;
-import com.saimon.Stock.portfolio.api.dolar.DolarPrice;
-import com.saimon.Stock.portfolio.api.stock.StockPrice;
+import com.saimon.Stock.portfolio.Api.dolar.Response;
+import com.saimon.Stock.portfolio.Api.dolar.DolarPrice;
+import com.saimon.Stock.portfolio.Api.stock.StockPrice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -45,7 +45,7 @@ public class Consumer {
                 .path(String.format("v8/finance/chart/%s", stockSymbol))
                 .queryParam(String.format("?symbol=%s&&interval=1d", stockSymbol))
                 .build();
-        ResponseEntity<com.saimon.Stock.portfolio.api.stock.Response> entity = template.getForEntity(uri.toUriString(), com.saimon.Stock.portfolio.api.stock.Response.class);
+        ResponseEntity<com.saimon.Stock.portfolio.Api.stock.Response> entity = template.getForEntity(uri.toUriString(), com.saimon.Stock.portfolio.Api.stock.Response.class);
         if (entity.getStatusCode() != HttpStatus.OK) {
             throw new NullPointerException(String.format("Entity is null. Reponse Code: %s", entity.getStatusCode()));
         }

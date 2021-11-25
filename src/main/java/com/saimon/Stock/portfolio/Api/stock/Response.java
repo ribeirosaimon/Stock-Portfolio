@@ -1,4 +1,4 @@
-package com.saimon.Stock.portfolio.api.stock;
+package com.saimon.Stock.portfolio.Api.stock;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

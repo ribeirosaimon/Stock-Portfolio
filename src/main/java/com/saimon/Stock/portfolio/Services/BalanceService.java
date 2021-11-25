@@ -1,4 +1,4 @@
-package com.saimon.Stock.portfolio.services;
+package com.saimon.Stock.portfolio.Services;
 
 import com.saimon.Stock.portfolio.DTO.BalanceDTO;
 import com.saimon.Stock.portfolio.Database.Entity.BalanceEntity;
