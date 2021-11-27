@@ -31,7 +31,7 @@ public class StockInfo {
         Double high = (Double) highList.get(0);
         Long volume = ((Number) volumeList.get(0)).longValue();
 
-        StockPrice stockPrice = new StockPrice(symbol, low, open, close, high, volume);
+        StockPrice stockPrice = new StockPrice(symbol.toLowerCase(), low, open, close, high, volume);
         this.stockPrice = stockPrice;
     }
 

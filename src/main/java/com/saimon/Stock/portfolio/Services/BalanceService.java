@@ -1,10 +1,13 @@
 package com.saimon.Stock.portfolio.Services;
 
 import com.saimon.Stock.portfolio.DTO.BalanceDTO;
+import com.saimon.Stock.portfolio.DTO.StockDTO;
 import com.saimon.Stock.portfolio.Database.Entity.BalanceEntity;
 import com.saimon.Stock.portfolio.Database.Entity.CashEntity;
+import com.saimon.Stock.portfolio.Database.Entity.StockEntity;
 import com.saimon.Stock.portfolio.Database.Model.Balance;
 import com.saimon.Stock.portfolio.Database.Model.Cash;
+import com.saimon.Stock.portfolio.Database.Model.Stock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,8 @@ public class BalanceService {
     private CashEntity cashEntity;
     @Autowired
     private BalanceEntity balanceEntity;
+    @Autowired
+    private StockEntity stockEntity;
 
     public BalanceDTO scheduleBalance() {
         BalanceDTO usaBalance = balance(false);
@@ -43,5 +48,23 @@ public class BalanceService {
             }
         }
         return new BalanceDTO(balanceValue);
+    }
+
+    public StockDTO infoStock(String stock) {
+        Double averageValue = 0D;
+        Double quantity = 0D;
+
+        for (Stock oneStock : stockEntity.findAll()) {
+            if (stock.equals(oneStock.getStock())) {
+                if (oneStock.getBuy()) {
+                    quantity += oneStock.getQuantity();
+                    averageValue += (oneStock.getQuantity() * oneStock.getValue());
+                } else {
+                    quantity -= oneStock.getQuantity();
+                    averageValue -= (oneStock.getQuantity() * oneStock.getValue());
+                }
+            }
+        }
+        return new StockDTO(stock, (averageValue / quantity), quantity);
     }
 }
