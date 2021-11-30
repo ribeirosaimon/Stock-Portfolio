@@ -75,7 +75,7 @@ public class CashController {
                 .fromCurrentContextPath()
                 .path(WITHDRAW_URI)
                 .toString());
-        Cash cashValue = cashService.withdraw((value * -1), national, dolar);
+        Cash cashValue = cashService.withdraw(value, national, dolar);
         return ResponseEntity
                 .created(uri)
                 .body(Optional.of(new CashDTO(cashValue.getCashValue(), cashValue.getNational()))
@@ -97,8 +97,8 @@ public class CashController {
 
     @PostMapping(BUY_URI)
     public StockDTO buyStock(@RequestParam("stock") String stock,
-                           @RequestParam("value") Double value,
-                           @RequestParam("quantity") Double quantity) {
+                             @RequestParam("value") Double value,
+                             @RequestParam("quantity") Double quantity) {
         Boolean national = false;
         if (stock.contains(".sa")) {
             national = true;
@@ -118,8 +118,8 @@ public class CashController {
 
     @PostMapping(SELL_URI)
     public StockDTO sellStock(@RequestParam("stock") String stock,
-                             @RequestParam("value") Double value,
-                             @RequestParam("quantity") Double quantity) {
+                              @RequestParam("value") Double value,
+                              @RequestParam("quantity") Double quantity) {
         Boolean national = false;
         if (stock.contains(".sa")) {
             national = true;

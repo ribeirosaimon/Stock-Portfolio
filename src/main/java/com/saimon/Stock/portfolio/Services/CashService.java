@@ -38,7 +38,7 @@ public class CashService {
         }
         if (!national) {
             if (dolar != null) {
-                Cash cashValue = new Cash(-value, false, dolar);
+                Cash cashValue = new Cash(value * -1, false, dolar);
                 cashEntity.save(cashValue);
                 return cashValue;
             }
