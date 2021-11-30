@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class BalanceService {
     private Logger Log = LoggerFactory.getLogger(BalanceService.class);
@@ -62,9 +65,11 @@ public class BalanceService {
     public StockDTO infoStock(String stock) {
         Double averageValue = 0D;
         Double quantity = 0D;
+        Boolean national = false;
 
         for (Stock oneStock : stockEntity.findAll()) {
             if (stock.equals(oneStock.getStock())) {
+                national = oneStock.getNational();
                 if (oneStock.getBuy()) {
                     quantity += oneStock.getQuantity();
                     averageValue += (oneStock.getQuantity() * oneStock.getValue());
@@ -74,37 +79,41 @@ public class BalanceService {
                 }
             }
         }
-        return new StockDTO(stock, (averageValue / quantity), quantity);
+        return new StockDTO(stock, (averageValue / quantity), quantity, national);
     }
 
     public BalanceDTO balanceCashStockPortfolio(Boolean national) {
-        Double completeBalance = 0D;
-        BalanceDTO cashBalance = balance(null);
-        if (national == null) {
-            for (Stock stock : stockEntity.findAll()) {
-                if (stock.getBuy()) {
-                    StockPrice findStock = cons.conStockPrice(stock.getStock());
-                    Double patrimony = stock.getQuantity() * findStock.getClose();
-                    if (!stock.getNational()) {
-                        patrimony *= cons.conDolarPrice().get().getAsk();
-                    }
-                    completeBalance += patrimony;
-                }
+        Double valueStockCash = 0D;
+        for (StockDTO stock : minePortfolio()) {
+            if (stock.getNational() == national) {
+                valueStockCash += cons.conStockPrice(stock.getStock()).getClose() * stock.getQuantity();
             }
-        } else {
-            for (Stock stock : stockEntity.findAll()) {
-                if (stock.getBuy()) {
-                    if (stock.getNational() == national) {
-                        StockPrice findStock = cons.conStockPrice(stock.getStock());
-                        Double patrimony = stock.getQuantity() * findStock.getClose();
-                        if (!stock.getNational()) {
-                            patrimony *= cons.conDolarPrice().get().getAsk();
-                        }
-                        completeBalance += patrimony;
+        }
+        if (!national) {
+            valueStockCash *= cons.conDolarPrice().get().getAsk();
+        }
+        return new BalanceDTO(valueStockCash);
+    }
+
+    public List<StockDTO> minePortfolio() {
+        List<StockDTO> myPortfolio = new ArrayList<>();
+        for (Stock stock : stockEntity.findAll()) {
+            if (stock.getBuy()) {
+                StockPrice stockPrice = cons.conStockPrice(stock.getStock());
+                StockDTO stockDTO = new StockDTO(stock.getStock(),
+                        stockPrice.getClose(),
+                        stock.getQuantity(),
+                        stock.getNational());
+                myPortfolio.add(stockDTO);
+            } else {
+                for (StockDTO stockdto : myPortfolio) {
+                    if (stockdto.getStock().equals(stock.getStock())) {
+                        stockdto.setQuantity(stockdto.getQuantity() - stock.getQuantity());
                     }
                 }
             }
         }
-        return new BalanceDTO(completeBalance);
+        myPortfolio.removeIf(stockDTO -> stockDTO.getQuantity() == 0);
+        return myPortfolio;
     }
 }

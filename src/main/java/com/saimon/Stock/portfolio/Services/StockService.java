@@ -2,6 +2,7 @@ package com.saimon.Stock.portfolio.Services;
 
 import com.saimon.Stock.portfolio.Api.Consumer;
 import com.saimon.Stock.portfolio.DTO.BalanceDTO;
+import com.saimon.Stock.portfolio.DTO.StockDTO;
 import com.saimon.Stock.portfolio.Database.Entity.CashEntity;
 import com.saimon.Stock.portfolio.Database.Entity.StockEntity;
 import com.saimon.Stock.portfolio.Database.Model.Cash;
@@ -24,6 +25,8 @@ public class StockService {
     @Autowired
     private BalanceService balanceService;
     @Autowired
+    private CashService cashService;
+    @Autowired
     private Consumer apiConsumer;
 
     public void buyStock(Stock stock) {
@@ -42,9 +45,23 @@ public class StockService {
 
     public void sellStock(Stock stock) {
         Double dolarvalue = null;
+        StockDTO infoStock = new StockDTO(stock.getStock(), 0D, 0D, stock.getNational());
         List<Stock> allStocks = stockEntity.findAll();
-        if (balanceService.infoStock(stock.getStock()).getQuantity() >= stock.getQuantity()) {
+        for (Stock newStock : stockEntity.findAll()) {
+            if (newStock.getBuy()) {
+                infoStock.setQuantity(infoStock.getQuantity() + newStock.getQuantity());
+            } else {
+                infoStock.setQuantity(infoStock.getQuantity() - newStock.getQuantity());
+            }
+        }
+        if (stock.getQuantity() <= infoStock.getQuantity()) {
             stockEntity.save(stock);
+            if (!stock.getNational()) {
+                dolarvalue = apiConsumer.conDolarPrice().get().getAsk();
+            }
+            cashService.deposit(stock.getValue() * stock.getQuantity(),
+                    stock.getNational(),
+                    dolarvalue);
         }
     }
 }

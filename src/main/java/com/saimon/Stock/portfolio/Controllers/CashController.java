@@ -3,6 +3,7 @@ package com.saimon.Stock.portfolio.Controllers;
 import com.saimon.Stock.portfolio.Api.Consumer;
 import com.saimon.Stock.portfolio.DTO.CashDTO;
 import com.saimon.Stock.portfolio.DTO.PortfolioDTO;
+import com.saimon.Stock.portfolio.DTO.StockDTO;
 import com.saimon.Stock.portfolio.Database.Entity.BalanceEntity;
 import com.saimon.Stock.portfolio.Database.Entity.CashEntity;
 import com.saimon.Stock.portfolio.Database.Entity.StockEntity;
@@ -16,13 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -32,6 +31,10 @@ public class CashController {
     private final String DEPOSIT_URI = "/deposit";
     private final String WITHDRAW_URI = "/withdraw";
     private final String BALANCE_URI = "/balance";
+    private final String BUY_URI = "/buy";
+    private final String SELL_URI = "/sell";
+    private final String CASH_URI = "/cash";
+    private final String PORTFOLIO_URI = "/portfolio/mine";
     @Autowired
     private Consumer cons;
     @Autowired
@@ -47,7 +50,7 @@ public class CashController {
     @Autowired
     private StockService stockService;
 
-    @GetMapping(DEPOSIT_URI)
+    @PostMapping(DEPOSIT_URI)
     public ResponseEntity<CashDTO> deposit(@RequestParam("national") Boolean national,
                                            @RequestParam("value") Double value,
                                            @RequestParam(value = "dolar", required = false) Double dolar)
@@ -63,7 +66,7 @@ public class CashController {
                         .orElseThrow(() -> new Exception("Error to deposit")));
     }
 
-    @GetMapping(WITHDRAW_URI)
+    @PostMapping(WITHDRAW_URI)
     public ResponseEntity<CashDTO> withdraw(@RequestParam("national") Boolean national,
                                             @RequestParam("value") Double value,
                                             @RequestParam(value = "dolar", required = false) Double dolar)
@@ -92,29 +95,42 @@ public class CashController {
         return balanceService.balance(nationalBoolean).getBalance().toString();
     }
 
-    @GetMapping("/buy")
-    public String buyStock() {
-        Stock stock1 = new Stock("ctnm4.sa", 5.32, 1000D, true, true);
-        Stock stock2 = new Stock("movi3.sa", 17.89, 251D, true, true);
-        Stock stock3 = new Stock("sapr4.sa", 3.78, 1600D, true, true);
-        Stock stock4 = new Stock("sula11.sa", 25.42, 100D, true, true);
-        stockService.buyStock(stock1);
-        stockService.buyStock(stock2);
-        stockService.buyStock(stock3);
-        stockService.buyStock(stock4);
-        return "BUY Ok";
+    @PostMapping(BUY_URI)
+    public StockDTO buyStock(@RequestParam("stock") String stock,
+                           @RequestParam("value") Double value,
+                           @RequestParam("quantity") Double quantity) {
+        Boolean national = false;
+        if (stock.contains(".sa")) {
+            national = true;
+        }
+        Stock buyStock = new Stock(stock, value, quantity, national, true);
+        stockService.buyStock(buyStock);
+        return new StockDTO(stock, value, quantity, national);
+//        Stock stock1 = new Stock("ctnm4.sa", 5.32, 1000D, true, true);
+//        Stock stock2 = new Stock("movi3.sa", 17.89, 251D, true, true);
+//        Stock stock3 = new Stock("sapr4.sa", 3.78, 1600D, true, true);
+//        Stock stock4 = new Stock("sula11.sa", 25.42, 100D, true, true);
+//        stockService.buyStock(stock1);
+//        stockService.buyStock(stock2);
+//        stockService.buyStock(stock3);
+//        stockService.buyStock(stock4);
     }
 
-    @GetMapping("/sell")
-    public String sellStock() {
-        var acao1 = cons.conStockPrice("movi3.sa");
-        Stock stock1 = new Stock(acao1.getSymbol(), 17.89, 101D, true, false);
-        stockService.sellStock(stock1);
-        return "SELL OK";
+    @PostMapping(SELL_URI)
+    public StockDTO sellStock(@RequestParam("stock") String stock,
+                             @RequestParam("value") Double value,
+                             @RequestParam("quantity") Double quantity) {
+        Boolean national = false;
+        if (stock.contains(".sa")) {
+            national = true;
+        }
+        Stock sellStock = new Stock(stock, value, quantity, national, true);
+        stockService.sellStock(sellStock);
+        return new StockDTO(stock, value, quantity, national);
     }
 
-    @GetMapping("/portfolio")
-    public PortfolioDTO portfolioStock() {
+    @GetMapping(CASH_URI)
+    public PortfolioDTO portfolioCashStock() {
         Balance balance = balanceEntity.findTopByOrderByIdDesc().get();
         return new PortfolioDTO(balance.getBrBalance(),
                 balance.getUsaBalance(),
@@ -123,4 +139,8 @@ public class CashController {
         );
     }
 
+    @GetMapping(PORTFOLIO_URI)
+    public List<StockDTO> portfolioStock() {
+        return balanceService.minePortfolio();
+    }
 }
