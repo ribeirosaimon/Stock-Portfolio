@@ -1,5 +1,7 @@
 package com.saimon.Stock.portfolio.Services;
 
+import com.saimon.Stock.portfolio.Api.Consumer;
+import com.saimon.Stock.portfolio.Api.stock.StockPrice;
 import com.saimon.Stock.portfolio.DTO.BalanceDTO;
 import com.saimon.Stock.portfolio.DTO.StockDTO;
 import com.saimon.Stock.portfolio.Database.Entity.BalanceEntity;
@@ -22,12 +24,16 @@ public class BalanceService {
     private BalanceEntity balanceEntity;
     @Autowired
     private StockEntity stockEntity;
+    @Autowired
+    private Consumer cons;
 
     public BalanceDTO scheduleBalance() {
         BalanceDTO usaBalance = balance(false);
         BalanceDTO brBalance = balance(true);
-        var totalBalance = brBalance.getBalance() + usaBalance.getBalance();
-        Balance balance = new Balance(usaBalance.getBalance(), brBalance.getBalance(), totalBalance);
+        BalanceDTO brStock = balanceCashStockPortfolio(true);
+        BalanceDTO usaStock = balanceCashStockPortfolio(false);
+        Double totalBalance = usaBalance.getBalance() + brBalance.getBalance() + usaStock.getBalance() + brStock.getBalance();
+        Balance balance = new Balance(usaBalance.getBalance(), brBalance.getBalance(), usaStock.getBalance(), brStock.getBalance(), totalBalance);
         balanceEntity.save(balance);
         return new BalanceDTO(balance.getTotalBalance());
     }
@@ -37,6 +43,9 @@ public class BalanceService {
         if (national == null) {
             for (Cash cash : cashEntity.findAll()) {
                 double cashValue = cash.getCashValue();
+                if (!cash.getNational()) {
+                    cashValue *= cons.conDolarPrice().get().getAsk();
+                }
                 balanceValue += cashValue;
             }
         } else {
@@ -66,5 +75,36 @@ public class BalanceService {
             }
         }
         return new StockDTO(stock, (averageValue / quantity), quantity);
+    }
+
+    public BalanceDTO balanceCashStockPortfolio(Boolean national) {
+        Double completeBalance = 0D;
+        BalanceDTO cashBalance = balance(null);
+        if (national == null) {
+            for (Stock stock : stockEntity.findAll()) {
+                if (stock.getBuy()) {
+                    StockPrice findStock = cons.conStockPrice(stock.getStock());
+                    Double patrimony = stock.getQuantity() * findStock.getClose();
+                    if (!stock.getNational()) {
+                        patrimony *= cons.conDolarPrice().get().getAsk();
+                    }
+                    completeBalance += patrimony;
+                }
+            }
+        } else {
+            for (Stock stock : stockEntity.findAll()) {
+                if (stock.getBuy()) {
+                    if (stock.getNational() == national) {
+                        StockPrice findStock = cons.conStockPrice(stock.getStock());
+                        Double patrimony = stock.getQuantity() * findStock.getClose();
+                        if (!stock.getNational()) {
+                            patrimony *= cons.conDolarPrice().get().getAsk();
+                        }
+                        completeBalance += patrimony;
+                    }
+                }
+            }
+        }
+        return new BalanceDTO(completeBalance);
     }
 }

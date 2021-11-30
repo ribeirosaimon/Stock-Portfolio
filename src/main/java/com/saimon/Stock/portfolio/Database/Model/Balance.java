@@ -13,16 +13,20 @@ public class Balance {
     private Long id;
     private Double usaBalance;
     private Double brBalance;
+    private Double usaStock;
+    private Double brStock;
     private Double totalBalance;
     private Date timestamp = new Date();
 
-    public Balance(){
+    Balance() {
 
     }
 
-    public Balance(Double usaBalance, Double brBalance, Double totalBalance) {
+    public Balance(Double usaBalance, Double brBalance, Double usaStock, Double brStock, Double totalBalance) {
         this.usaBalance = usaBalance;
         this.brBalance = brBalance;
+        this.usaStock = usaStock;
+        this.brStock = brStock;
         this.totalBalance = totalBalance;
     }
 
@@ -32,6 +36,14 @@ public class Balance {
 
     public Double getBrBalance() {
         return brBalance;
+    }
+
+    public Double getUsaStock() {
+        return usaStock;
+    }
+
+    public Double getBrStock() {
+        return brStock;
     }
 
     public Double getTotalBalance() {

@@ -2,9 +2,11 @@ package com.saimon.Stock.portfolio.Controllers;
 
 import com.saimon.Stock.portfolio.Api.Consumer;
 import com.saimon.Stock.portfolio.DTO.CashDTO;
-import com.saimon.Stock.portfolio.DTO.StockDTO;
+import com.saimon.Stock.portfolio.DTO.PortfolioDTO;
+import com.saimon.Stock.portfolio.Database.Entity.BalanceEntity;
 import com.saimon.Stock.portfolio.Database.Entity.CashEntity;
 import com.saimon.Stock.portfolio.Database.Entity.StockEntity;
+import com.saimon.Stock.portfolio.Database.Model.Balance;
 import com.saimon.Stock.portfolio.Database.Model.Cash;
 import com.saimon.Stock.portfolio.Database.Model.Stock;
 import com.saimon.Stock.portfolio.Services.BalanceService;
@@ -38,6 +40,8 @@ public class CashController {
     private CashEntity cashEntity;
     @Autowired
     private CashService cashService;
+    @Autowired
+    private BalanceEntity balanceEntity;
     @Autowired
     private BalanceService balanceService;
     @Autowired
@@ -90,9 +94,14 @@ public class CashController {
 
     @GetMapping("/buy")
     public String buyStock() {
-        var acao1 = cons.conStockPrice("movi3.sa");
-        Stock stock1 = new Stock(acao1.getSymbol(), 17.89, 251D, true, true);
+        Stock stock1 = new Stock("ctnm4.sa", 5.32, 1000D, true, true);
+        Stock stock2 = new Stock("movi3.sa", 17.89, 251D, true, true);
+        Stock stock3 = new Stock("sapr4.sa", 3.78, 1600D, true, true);
+        Stock stock4 = new Stock("sula11.sa", 25.42, 100D, true, true);
         stockService.buyStock(stock1);
+        stockService.buyStock(stock2);
+        stockService.buyStock(stock3);
+        stockService.buyStock(stock4);
         return "BUY Ok";
     }
 
@@ -105,8 +114,13 @@ public class CashController {
     }
 
     @GetMapping("/portfolio")
-    public StockDTO portfolioStock() {
-        return balanceService.infoStock("MOVI3.SA");
+    public PortfolioDTO portfolioStock() {
+        Balance balance = balanceEntity.findTopByOrderByIdDesc().get();
+        return new PortfolioDTO(balance.getBrBalance(),
+                balance.getUsaBalance(),
+                balance.getBrStock(),
+                balance.getUsaStock()
+        );
     }
 
 }
