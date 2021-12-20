@@ -4,9 +4,9 @@ import com.saimon.Stock.portfolio.Api.Consumer;
 import com.saimon.Stock.portfolio.Api.stock.StockPrice;
 import com.saimon.Stock.portfolio.DTO.BalanceDTO;
 import com.saimon.Stock.portfolio.DTO.StockDTO;
-import com.saimon.Stock.portfolio.Database.Entity.BalanceEntity;
-import com.saimon.Stock.portfolio.Database.Entity.CashEntity;
-import com.saimon.Stock.portfolio.Database.Entity.StockEntity;
+import com.saimon.Stock.portfolio.Database.Repository.BalanceRepository;
+import com.saimon.Stock.portfolio.Database.Repository.CashRepository;
+import com.saimon.Stock.portfolio.Database.Repository.StockRepository;
 import com.saimon.Stock.portfolio.Database.Model.Balance;
 import com.saimon.Stock.portfolio.Database.Model.Cash;
 import com.saimon.Stock.portfolio.Database.Model.Stock;
@@ -19,11 +19,11 @@ import org.springframework.stereotype.Service;
 public class BalanceService {
     private Logger Log = LoggerFactory.getLogger(BalanceService.class);
     @Autowired
-    private CashEntity cashEntity;
+    private CashRepository cashRepository;
     @Autowired
-    private BalanceEntity balanceEntity;
+    private BalanceRepository balanceRepository;
     @Autowired
-    private StockEntity stockEntity;
+    private StockRepository stockRepository;
     @Autowired
     private Consumer cons;
 
@@ -34,14 +34,14 @@ public class BalanceService {
         BalanceDTO usaStock = balanceCashStockPortfolio(false);
         Double totalBalance = usaBalance.getBalance() + brBalance.getBalance() + usaStock.getBalance() + brStock.getBalance();
         Balance balance = new Balance(usaBalance.getBalance(), brBalance.getBalance(), usaStock.getBalance(), brStock.getBalance(), totalBalance);
-        balanceEntity.save(balance);
+        balanceRepository.save(balance);
         return new BalanceDTO(balance.getTotalBalance());
     }
 
     public BalanceDTO balance(Boolean national) {
         double balanceValue = 0D;
         if (national == null) {
-            for (Cash cash : cashEntity.findAll()) {
+            for (Cash cash : cashRepository.findAll()) {
                 double cashValue = cash.getCashValue();
                 if (!cash.getNational()) {
                     cashValue *= cons.conDolarPrice().get().getAsk();
@@ -49,7 +49,7 @@ public class BalanceService {
                 balanceValue += cashValue;
             }
         } else {
-            for (Cash cash : cashEntity.findAll()) {
+            for (Cash cash : cashRepository.findAll()) {
                 if (cash.getNational() == national) {
                     double cashValue = cash.getCashValue();
                     balanceValue += cashValue;
@@ -63,7 +63,7 @@ public class BalanceService {
         Double averageValue = 0D;
         Double quantity = 0D;
 
-        for (Stock oneStock : stockEntity.findAll()) {
+        for (Stock oneStock : stockRepository.findAll()) {
             if (stock.equals(oneStock.getStock())) {
                 if (oneStock.getBuy()) {
                     quantity += oneStock.getQuantity();
@@ -81,7 +81,7 @@ public class BalanceService {
         Double completeBalance = 0D;
         BalanceDTO cashBalance = balance(null);
         if (national == null) {
-            for (Stock stock : stockEntity.findAll()) {
+            for (Stock stock : stockRepository.findAll()) {
                 if (stock.getBuy()) {
                     StockPrice findStock = cons.conStockPrice(stock.getStock());
                     Double patrimony = stock.getQuantity() * findStock.getClose();
@@ -92,7 +92,7 @@ public class BalanceService {
                 }
             }
         } else {
-            for (Stock stock : stockEntity.findAll()) {
+            for (Stock stock : stockRepository.findAll()) {
                 if (stock.getBuy()) {
                     if (stock.getNational() == national) {
                         StockPrice findStock = cons.conStockPrice(stock.getStock());

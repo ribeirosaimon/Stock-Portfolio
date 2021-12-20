@@ -1,11 +1,10 @@
-package com.saimon.Stock.portfolio.Database.Entity;
+package com.saimon.Stock.portfolio.Database.Repository;
 
 import com.saimon.Stock.portfolio.Database.Model.Balance;
-import com.saimon.Stock.portfolio.Database.Model.Cash;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface BalanceEntity extends JpaRepository<Balance, Long> {
+public interface BalanceRepository extends JpaRepository<Balance, Long> {
     Optional<Balance> findTopByOrderByIdDesc();
 }

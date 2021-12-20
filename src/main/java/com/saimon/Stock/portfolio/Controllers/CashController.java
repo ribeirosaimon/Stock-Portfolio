@@ -3,9 +3,9 @@ package com.saimon.Stock.portfolio.Controllers;
 import com.saimon.Stock.portfolio.Api.Consumer;
 import com.saimon.Stock.portfolio.DTO.CashDTO;
 import com.saimon.Stock.portfolio.DTO.PortfolioDTO;
-import com.saimon.Stock.portfolio.Database.Entity.BalanceEntity;
-import com.saimon.Stock.portfolio.Database.Entity.CashEntity;
-import com.saimon.Stock.portfolio.Database.Entity.StockEntity;
+import com.saimon.Stock.portfolio.Database.Repository.BalanceRepository;
+import com.saimon.Stock.portfolio.Database.Repository.CashRepository;
+import com.saimon.Stock.portfolio.Database.Repository.StockRepository;
 import com.saimon.Stock.portfolio.Database.Model.Balance;
 import com.saimon.Stock.portfolio.Database.Model.Cash;
 import com.saimon.Stock.portfolio.Database.Model.Stock;
@@ -16,10 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -35,19 +32,19 @@ public class CashController {
     @Autowired
     private Consumer cons;
     @Autowired
-    private StockEntity stockEntity;
+    private StockRepository stockRepository;
     @Autowired
-    private CashEntity cashEntity;
+    private CashRepository cashRepository;
     @Autowired
     private CashService cashService;
     @Autowired
-    private BalanceEntity balanceEntity;
+    private BalanceRepository balanceRepository;
     @Autowired
     private BalanceService balanceService;
     @Autowired
     private StockService stockService;
 
-    @GetMapping(DEPOSIT_URI)
+    @PostMapping(DEPOSIT_URI)
     public ResponseEntity<CashDTO> deposit(@RequestParam("national") Boolean national,
                                            @RequestParam("value") Double value,
                                            @RequestParam(value = "dolar", required = false) Double dolar)
@@ -63,7 +60,7 @@ public class CashController {
                         .orElseThrow(() -> new Exception("Error to deposit")));
     }
 
-    @GetMapping(WITHDRAW_URI)
+    @PostMapping(WITHDRAW_URI)
     public ResponseEntity<CashDTO> withdraw(@RequestParam("national") Boolean national,
                                             @RequestParam("value") Double value,
                                             @RequestParam(value = "dolar", required = false) Double dolar)
@@ -92,7 +89,7 @@ public class CashController {
         return balanceService.balance(nationalBoolean).getBalance().toString();
     }
 
-    @GetMapping("/buy")
+    @PostMapping("/buy")
     public String buyStock() {
         Stock stock1 = new Stock("ctnm4.sa", 5.32, 1000D, true, true);
         Stock stock2 = new Stock("movi3.sa", 17.89, 251D, true, true);
@@ -105,7 +102,7 @@ public class CashController {
         return "BUY Ok";
     }
 
-    @GetMapping("/sell")
+    @PostMapping("/sell")
     public String sellStock() {
         var acao1 = cons.conStockPrice("movi3.sa");
         Stock stock1 = new Stock(acao1.getSymbol(), 17.89, 101D, true, false);
@@ -115,7 +112,7 @@ public class CashController {
 
     @GetMapping("/portfolio")
     public PortfolioDTO portfolioStock() {
-        Balance balance = balanceEntity.findTopByOrderByIdDesc().get();
+        Balance balance = balanceRepository.findTopByOrderByIdDesc().get();
         return new PortfolioDTO(balance.getBrBalance(),
                 balance.getUsaBalance(),
                 balance.getBrStock(),

@@ -2,8 +2,8 @@ package com.saimon.Stock.portfolio.Services;
 
 import com.saimon.Stock.portfolio.Api.Consumer;
 import com.saimon.Stock.portfolio.DTO.BalanceDTO;
-import com.saimon.Stock.portfolio.Database.Entity.CashEntity;
-import com.saimon.Stock.portfolio.Database.Entity.StockEntity;
+import com.saimon.Stock.portfolio.Database.Repository.CashRepository;
+import com.saimon.Stock.portfolio.Database.Repository.StockRepository;
 import com.saimon.Stock.portfolio.Database.Model.Cash;
 import com.saimon.Stock.portfolio.Database.Model.Stock;
 import org.slf4j.Logger;
@@ -18,9 +18,9 @@ import java.util.List;
 public class StockService {
     private Logger Log = LoggerFactory.getLogger(StockService.class);
     @Autowired
-    private CashEntity cashEntity;
+    private CashRepository cashRepository;
     @Autowired
-    private StockEntity stockEntity;
+    private StockRepository stockRepository;
     @Autowired
     private BalanceService balanceService;
     @Autowired
@@ -35,16 +35,16 @@ public class StockService {
                 dolarValue = apiConsumer.conDolarPrice().get().getAsk();
             }
             Cash buyStockCash = new Cash(cash * -1, stock.getNational(), dolarValue);
-            cashEntity.save(buyStockCash);
-            stockEntity.save(stock);
+            cashRepository.save(buyStockCash);
+            stockRepository.save(stock);
         }
     }
 
     public void sellStock(Stock stock) {
         Double dolarvalue = null;
-        List<Stock> allStocks = stockEntity.findAll();
+        List<Stock> allStocks = stockRepository.findAll();
         if (balanceService.infoStock(stock.getStock()).getQuantity() >= stock.getQuantity()) {
-            stockEntity.save(stock);
+            stockRepository.save(stock);
         }
     }
 }
