@@ -51,7 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .hasRole("USER")
                 .antMatchers("/withdraw")
                 .hasRole("USER")
-                .antMatchers("/balance")
+                .antMatchers("/balance/**")
                 .hasRole("USER")
                 .antMatchers("/sell")
                 .hasRole("USER")

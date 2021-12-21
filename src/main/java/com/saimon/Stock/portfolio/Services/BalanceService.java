@@ -4,12 +4,12 @@ import com.saimon.Stock.portfolio.Api.Consumer;
 import com.saimon.Stock.portfolio.Api.stock.StockPrice;
 import com.saimon.Stock.portfolio.DTO.BalanceDTO;
 import com.saimon.Stock.portfolio.DTO.StockDTO;
-import com.saimon.Stock.portfolio.Database.Repository.BalanceRepository;
-import com.saimon.Stock.portfolio.Database.Repository.CashRepository;
-import com.saimon.Stock.portfolio.Database.Repository.StockRepository;
 import com.saimon.Stock.portfolio.Database.Model.Balance;
 import com.saimon.Stock.portfolio.Database.Model.Cash;
 import com.saimon.Stock.portfolio.Database.Model.Stock;
+import com.saimon.Stock.portfolio.Database.Repository.BalanceRepository;
+import com.saimon.Stock.portfolio.Database.Repository.CashRepository;
+import com.saimon.Stock.portfolio.Database.Repository.StockRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +62,10 @@ public class BalanceService {
     public StockDTO infoStock(String stock) {
         Double averageValue = 0D;
         Double quantity = 0D;
-
+        boolean national = false;
+        if (stock.contains(".sa")) {
+            national = true;
+        }
         for (Stock oneStock : stockRepository.findAll()) {
             if (stock.equals(oneStock.getStock())) {
                 if (oneStock.getBuy()) {
@@ -74,7 +77,7 @@ public class BalanceService {
                 }
             }
         }
-        return new StockDTO(stock, (averageValue / quantity), quantity);
+        return new StockDTO(stock, (averageValue / quantity), quantity, national);
     }
 
     public BalanceDTO balanceCashStockPortfolio(Boolean national) {

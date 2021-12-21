@@ -47,7 +47,7 @@ public class JwtService {
                     .toInstant()
                     .atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
-            return LocalDateTime.now().isAfter(localDateTime);
+            return LocalDateTime.now().isBefore(localDateTime);
         } catch (Exception e) {
             return false;
         }

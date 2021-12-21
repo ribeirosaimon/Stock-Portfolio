@@ -11,11 +11,16 @@ public class MyUser {
     private Long id;
     @NotEmpty
     private String name;
+    @Column(unique = true)
     @NotEmpty
     private String login;
     @NotEmpty
     private String password;
     private boolean admin;
+
+    public MyUser() {
+
+    }
 
     public MyUser(String login, String password) {
         this.login = login;
@@ -36,14 +41,6 @@ public class MyUser {
 
     public boolean isAdmin() {
         return admin;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
     }
 
     public void setPassword(String password) {
