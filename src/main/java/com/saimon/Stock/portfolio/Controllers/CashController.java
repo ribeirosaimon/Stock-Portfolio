@@ -3,18 +3,20 @@ package com.saimon.Stock.portfolio.Controllers;
 import com.saimon.Stock.portfolio.Api.Consumer;
 import com.saimon.Stock.portfolio.DTO.CashDTO;
 import com.saimon.Stock.portfolio.DTO.PortfolioDTO;
-import com.saimon.Stock.portfolio.Database.Repository.BalanceRepository;
-import com.saimon.Stock.portfolio.Database.Repository.CashRepository;
-import com.saimon.Stock.portfolio.Database.Repository.StockRepository;
+import com.saimon.Stock.portfolio.DTO.StockDTO;
 import com.saimon.Stock.portfolio.Database.Model.Balance;
 import com.saimon.Stock.portfolio.Database.Model.Cash;
 import com.saimon.Stock.portfolio.Database.Model.Stock;
+import com.saimon.Stock.portfolio.Database.Repository.BalanceRepository;
+import com.saimon.Stock.portfolio.Database.Repository.CashRepository;
+import com.saimon.Stock.portfolio.Database.Repository.StockRepository;
 import com.saimon.Stock.portfolio.Services.BalanceService;
 import com.saimon.Stock.portfolio.Services.CashService;
 import com.saimon.Stock.portfolio.Services.StockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -61,6 +63,7 @@ public class CashController {
     }
 
     @PostMapping(WITHDRAW_URI)
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<CashDTO> withdraw(@RequestParam("national") Boolean national,
                                             @RequestParam("value") Double value,
                                             @RequestParam(value = "dolar", required = false) Double dolar)
@@ -77,6 +80,7 @@ public class CashController {
     }
 
     @GetMapping(BALANCE_URI)
+    @ResponseStatus(HttpStatus.OK)
     public String balance(@RequestParam(value = "national", required = false) Integer national) {
         Boolean nationalBoolean = null;
         if (national == 1) {
@@ -90,27 +94,38 @@ public class CashController {
     }
 
     @PostMapping("/buy")
-    public String buyStock() {
-        Stock stock1 = new Stock("ctnm4.sa", 5.32, 1000D, true, true);
-        Stock stock2 = new Stock("movi3.sa", 17.89, 251D, true, true);
-        Stock stock3 = new Stock("sapr4.sa", 3.78, 1600D, true, true);
-        Stock stock4 = new Stock("sula11.sa", 25.42, 100D, true, true);
-        stockService.buyStock(stock1);
-        stockService.buyStock(stock2);
-        stockService.buyStock(stock3);
-        stockService.buyStock(stock4);
-        return "BUY Ok";
+    @ResponseStatus(HttpStatus.OK)
+    public StockDTO buyStock(@RequestParam("stock") String ticket,
+                             @RequestParam("value") Double value,
+                             @RequestParam("quantity") Double qtd,
+                             @RequestParam(value = "dolar", required = false) Double dolar) {
+        Boolean national = false;
+        if (!ticket.contains(".sa")) {
+            national = true;
+        }
+
+        Stock stock = new Stock(ticket, value, qtd, national, true);
+        stockService.buyStock(stock);
+        return new StockDTO(stock.getStock(), stock.getValue(), stock.getQuantity(), stock.getNational());
     }
 
     @PostMapping("/sell")
-    public String sellStock() {
-        var acao1 = cons.conStockPrice("movi3.sa");
-        Stock stock1 = new Stock(acao1.getSymbol(), 17.89, 101D, true, false);
-        stockService.sellStock(stock1);
-        return "SELL OK";
+    @ResponseStatus(HttpStatus.OK)
+    public StockDTO sellStock(@RequestParam("stock") String ticket,
+                            @RequestParam("value") Double value,
+                            @RequestParam("quantity") Double qtd,
+                            @RequestParam(value = "dolar", required = false) Double dolar) {
+        Boolean national = false;
+        if (!ticket.contains(".sa")) {
+            national = true;
+        }
+        Stock stock = new Stock(ticket, value, qtd, national, false);
+        stockService.sellStock(stock);
+        return new StockDTO(stock.getStock(), stock.getValue(), stock.getQuantity(), stock.getNational());
     }
 
     @GetMapping("/portfolio")
+    @ResponseStatus(HttpStatus.OK)
     public PortfolioDTO portfolioStock() {
         Balance balance = balanceRepository.findTopByOrderByIdDesc().get();
         return new PortfolioDTO(balance.getBrBalance(),
